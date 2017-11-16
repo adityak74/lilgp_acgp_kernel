@@ -89,7 +89,7 @@ void run_gp ( multipop *mpop, int startgen,
 	  run_stats = (popstats *)MALLOC ( (mpop->size+1)*sizeof ( popstats ) );
 	  
     /* allocate size for the intron data */
-    pop_intron_data = (intron_data *)MALLOC ( (mpop->size + 1)*sizeof (intron_data) );
+    pop_intron_data = (intron_data *)MALLOC ( (mpop->pop[0]->size)*sizeof (intron_data) );
 
     for ( i = 0; i < mpop->size+1; ++i )
 	  {
