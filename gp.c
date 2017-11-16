@@ -797,7 +797,7 @@ void calculate_pop_stats ( popstats *s, population *pop, int gen,
       s->popintrons += pop_intron_data[iter].introns;
      }
      s->intronpercent = (double) s->popintrons / s->totalnodes;
-     oprintf (OUT_SYS, 10, "%lld %f", s->popintrons, s->intronpercent);
+     // oprintf (OUT_SYS, 10, "%lld %f", s->popintrons, s->intronpercent);
      /* end calculating the intron stats*/
 
      /** now save copies of the individuals in the "temp" list **/
