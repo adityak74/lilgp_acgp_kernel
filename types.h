@@ -222,6 +222,10 @@ typedef struct _popstats
      int bestpop, worstpop;
      int bestn;
      saved_ind **best;
+
+     /* added introns data to pop stats for writing to stt*/
+     long long int popintrons;
+     double intronpercent;
 } popstats;
 
 typedef struct 

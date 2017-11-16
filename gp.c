@@ -322,7 +322,7 @@ void run_gp ( multipop *mpop, int startgen,
 
      saved_individual_gc();
      FREE ( saved_head );
-     
+     FREE ( pop_intron_data );
 #ifdef DEBUG_TIMING     
      printf("\n\nOPERATOR AND HEURISTICS TIMING\n\n");
      
@@ -459,6 +459,7 @@ int generation_information ( int gen, multipop *mpop, int stt_interval,
                         (double)run_stats[i+1].totaldepth/run_stats[i+1].size,
                         run_stats[i+1].bestnodes, run_stats[i+1].bestdepth,
                         run_stats[i+1].worstnodes, run_stats[i+1].worstdepth );
+               oprintf ( OUT_STT, 50, " %lld %.3f ", gen_stats[i].popintrons, gen_stats[i].intronpercent);
                oprintf ( OUT_STT, 50, "\n" );
           }
             
@@ -544,6 +545,7 @@ int generation_information ( int gen, multipop *mpop, int stt_interval,
                         (double)run_stats[0].totaldepth/run_stats[0].size,
                         run_stats[0].bestnodes, run_stats[0].bestdepth,
                         run_stats[0].worstnodes, run_stats[0].worstdepth );
+               oprintf ( OUT_STT, 50, " %lld %.3f ", gen_stats[i].popintrons, gen_stats[i].intronpercent);
                oprintf ( OUT_STT, 50, "\n" );
           }
      }
@@ -698,7 +700,7 @@ void evaluate_pop ( population *pop )
        /* ignoring the flag look for introns in the pop */
        // have a function here to count the introns
        count_introns( ((pop->ind)+k)->tr->data, &pop_intron_data[k] );
-       oprintf ( OUT_SYS, 10, "\nIntrons for individual %d are %d with nodes %d.\n", (k+1), pop_intron_data[k].introns, pop_intron_data[k].nodes );
+       //oprintf ( OUT_SYS, 10, "\nIntrons for individual %d are %d with nodes %d.\n", (k+1), pop_intron_data[k].introns, pop_intron_data[k].nodes );
      }
 }
 
@@ -786,6 +788,17 @@ void calculate_pop_stats ( popstats *s, population *pop, int gen,
           if ( b < s->bestn )
                ++b;
      }
+
+     /* calculate the total introns from pop_intron_data and update the popstats */
+     int iter;
+     s->popintrons = 0;
+     s->intronpercent = 0.0f;
+     for (iter = 0; iter < pop->size; iter++) {
+      s->popintrons += pop_intron_data[iter].introns;
+     }
+     s->intronpercent = (double) s->popintrons / s->totalnodes;
+     oprintf (OUT_SYS, 10, "%lld %f", s->popintrons, s->intronpercent);
+     /* end calculating the intron stats*/
 
      /** now save copies of the individuals in the "temp" list **/
      for ( i = 0; i < b; ++i )
