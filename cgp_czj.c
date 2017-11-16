@@ -144,6 +144,9 @@ static void acgp_count_recurse ( lnode **l, int toUse);
 static void acgp_reset_expressed_recurse( lnode **l);
 /* recursive utility for acgp_reset_expressed_czj */
 
+static void count_introns_recurse(lnode **l, intron_data **idata);
+/* recursive utility for count_introns */
+
 static double acgp_new_weight(double oldW, double prctChnge, double statW,
                        int mutSetSize,double);
 /* return new weight
@@ -1346,6 +1349,46 @@ static void acgp_reset_expressed_recurse(lnode **l)
           for ( i = 0; i < parent->arity; ++i )
           {    ++*l;           /* l was skipnode, now its the child */
                acgp_reset_expressed_recurse(l);
+          }
+          break;
+     }
+}
+
+void count_introns(lnode *data, intron_data *idata)
+{
+     lnode *c = data;
+     count_introns_recurse (&c, &idata);
+}
+
+static void count_introns_recurse(lnode **l, intron_data **idata)
+/* recursive utility for above */
+{
+     function *parent;
+     int i;
+     int parIndex, chIndex;
+
+     // check if expressed is 0 or not and update
+     // if 0 then the node was not expressed and is an intron
+     if( (**l).expressed_czj == 0 ) {
+      // update the struct here
+      (**idata).introns++;
+     }
+
+     parent = (**l).f;
+     parIndex=parent->index;
+     ++*l;                      /* l is now first child */
+     switch ( parent->type )
+     {
+        case FUNC_DATA:
+        case EVAL_DATA:
+          for ( i = 0; i < parent->arity; ++i )
+             count_introns_recurse(l, idata);
+          break;
+        case FUNC_EXPR:
+        case EVAL_EXPR:
+          for ( i = 0; i < parent->arity; ++i )
+          {    ++*l;           /* l was skipnode, now its the child */
+               count_introns_recurse(l, idata);
           }
           break;
      }

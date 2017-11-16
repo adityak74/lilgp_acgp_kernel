@@ -37,7 +37,9 @@
 
 popstats *run_stats;
 saved_ind *saved_head, *saved_tail;
+
 intron_data* pop_intron_data; // array of the intron data
+
 #ifdef DEBUG_TIMING
      clock_t start_gather, total_gather = 0;
 #endif
@@ -85,10 +87,18 @@ void run_gp ( multipop *mpop, int startgen,
 	  
 	  /* allocate statistics for overall run. */
 	  run_stats = (popstats *)MALLOC ( (mpop->size+1)*sizeof ( popstats ) );
-	  for ( i = 0; i < mpop->size+1; ++i )
+	  
+    /* allocate size for the intron data */
+    pop_intron_data = (intron_data *)MALLOC ( (mpop->size + 1)*sizeof (intron_data) );
+
+    for ( i = 0; i < mpop->size+1; ++i )
 	  {
 	       run_stats[i].bestn = bestn;
 	       run_stats[i].size = -1;
+
+         /* initalize the intron_data array */
+         pop_intron_data[i].nodes = 0;
+         pop_intron_data[i].introns = 0;
 	  }
 	  
 	  /* initialize the linked list of saved individuals. */
@@ -674,11 +684,22 @@ void evaluate_pop ( population *pop )
      exit(0);
 #endif
      
-     for ( k = 0; k < pop->size; ++k )
+     for ( k = 0; k < pop->size; ++k ) {
+
+       /* clear the intron_data */
+       pop_intron_data[k].introns = 0;
+       pop_intron_data[k].nodes = individual_size( (pop->ind)+k );
+
        if ( pop->ind[k].evald != EVAL_CACHE_VALID )
        {       acgp_reset_expressed_czj(((pop->ind)+k)->tr->data); 
                app_eval_fitness ( (pop->ind)+k );
        }
+
+       /* ignoring the flag look for introns in the pop */
+       // have a function here to count the introns
+       count_introns( ((pop->ind)+k)->tr->data, &pop_intron_data[k] );
+       oprintf ( OUT_SYS, 10, "\nIntrons for individual %d are %d with nodes %d.\n", (k+1), pop_intron_data[k].introns, pop_intron_data[k].nodes );
+     }
 }
 
 /* calculate_pop_stats()
