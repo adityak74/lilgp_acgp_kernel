@@ -49,7 +49,8 @@ output streams[MAXOUTPUTSTREAMS] =
        { OUT_PRG, ".prg", 0, "w", 0, NULL, 0 },
        { OUT_STT, ".stt", 0, "w", 0, NULL, 0 },
        { OUT_BST, ".bst", 1, "w", 0, NULL, 0 },
-       { OUT_HIS, ".his", 0, "w", 0, NULL, 0 } };
+       { OUT_HIS, ".his", 0, "w", 0, NULL, 0 },
+       { OUT_USER, ".int", 0, "w", 0, NULL, 0 } };
      
 int output_stream_count = SYSOUTPUTSTREAMS;
 int toolate = 0;

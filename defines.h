@@ -91,6 +91,7 @@
 #define OUT_BST    4
 #define OUT_HIS    5
 #define OUT_USER   6
+// #define OUT_INT    6
 
 #define PARAM_COPY_NONE   0
 #define PARAM_COPY_NAME   1
@@ -98,7 +99,7 @@
 
 #define MAXMESSAGELENGTH 4096
 #define MAXOUTPUTSTREAMS 25
-#define SYSOUTPUTSTREAMS 6
+#define SYSOUTPUTSTREAMS 7
 
 #define PARAMETER_MINSIZE       31
 #define PARAMETER_CHUNKSIZE     16

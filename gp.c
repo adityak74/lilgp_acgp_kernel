@@ -1,6 +1,4 @@
-/*  lil-gp Genetic Programming System, version 1.0, 11 July 1995
- *  Copyright (C) 1995  Michigan State University
- * 
+/*
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of version 2 of the GNU General Public License as
  *  published by the Free Software Foundation.
@@ -38,7 +36,7 @@
 popstats *run_stats;
 saved_ind *saved_head, *saved_tail;
 
-intron_data* pop_intron_data; // array of the intron data
+intron_data **mpop_intron_data; // 2d array of the intron data for multiple population 
 
 #ifdef DEBUG_TIMING
      clock_t start_gather, total_gather = 0;
@@ -59,7 +57,7 @@ void run_gp ( multipop *mpop, int startgen,
      int gen;
      int maxgen;
      int exch_gen;
-     int i, j;
+     int i, j, k;
      int checkinterval;
      char *checkfileformat;
      char *checkfilename = NULL;
@@ -89,17 +87,27 @@ void run_gp ( multipop *mpop, int startgen,
 	  run_stats = (popstats *)MALLOC ( (mpop->size+1)*sizeof ( popstats ) );
 	  
     /* allocate size for the intron data */
-    pop_intron_data = (intron_data *)MALLOC ( (mpop->pop[0]->size)*sizeof (intron_data) );
+    mpop_intron_data = (intron_data **)MALLOC ( (mpop->size) * sizeof( intron_data *));
+
+    for (i = 0; i < mpop->size; ++i)
+    {
+       
+       mpop_intron_data[i] = (intron_data *) MALLOC( ( mpop->pop[i]->size+1 ) * sizeof( intron_data ) );
+       /* initalize the intron_data array */
+       for (k = 0; k < mpop->pop[i]->size; k++)
+       {
+         mpop_intron_data[i][k].nodes = 0;
+         mpop_intron_data[i][k].introns = 0;
+       }
+    }
 
     for ( i = 0; i < mpop->size+1; ++i )
 	  {
 	       run_stats[i].bestn = bestn;
-	       run_stats[i].size = -1;
+	       run_stats[i].size = -1;    
+    }
 
-         /* initalize the intron_data array */
-         pop_intron_data[i].nodes = 0;
-         pop_intron_data[i].introns = 0;
-	  }
+
 	  
 	  /* initialize the linked list of saved individuals. */
 	  saved_head = (saved_ind *)MALLOC ( sizeof ( saved_ind ) );
@@ -186,7 +194,7 @@ void run_gp ( multipop *mpop, int startgen,
                /* czj: will set the node expressed info */
                event_mark ( &start );
                for ( i = 0; i < mpop->size; ++i )
-                    evaluate_pop ( mpop->pop[i] );
+                    evaluate_pop ( mpop->pop[i], i );
                event_mark ( &end );
                event_diff ( &diff, &start, &end );
 
@@ -322,7 +330,7 @@ void run_gp ( multipop *mpop, int startgen,
 
      saved_individual_gc();
      FREE ( saved_head );
-     FREE ( pop_intron_data );
+     FREE ( mpop_intron_data );
 #ifdef DEBUG_TIMING     
      printf("\n\nOPERATOR AND HEURISTICS TIMING\n\n");
      
@@ -459,7 +467,7 @@ int generation_information ( int gen, multipop *mpop, int stt_interval,
                         (double)run_stats[i+1].totaldepth/run_stats[i+1].size,
                         run_stats[i+1].bestnodes, run_stats[i+1].bestdepth,
                         run_stats[i+1].worstnodes, run_stats[i+1].worstdepth );
-               oprintf ( OUT_STT, 50, " %lld %.3f ", gen_stats[i].popintrons, gen_stats[i].intronpercent);
+               // oprintf ( OUT_STT, 50, " %lld %.3f", gen_stats[i+1].popintrons, gen_stats[i+1].intronpercent);
                oprintf ( OUT_STT, 50, "\n" );
           }
             
@@ -545,9 +553,10 @@ int generation_information ( int gen, multipop *mpop, int stt_interval,
                         (double)run_stats[0].totaldepth/run_stats[0].size,
                         run_stats[0].bestnodes, run_stats[0].bestdepth,
                         run_stats[0].worstnodes, run_stats[0].worstdepth );
-               oprintf ( OUT_STT, 50, " %lld %.3f ", gen_stats[i].popintrons, gen_stats[i].intronpercent);
                oprintf ( OUT_STT, 50, "\n" );
           }
+          if ( test_detail_level(50) )
+            oprintf ( OUT_USER, 50, "%.3lf %.3lf %.3lf %.3lf\n", (double)gen_stats[0].popintrons/mpop->size, gen_stats[0].intronpercent/mpop->size, gen_stats[0].totalfit/gen_stats[0].size, (double)gen_stats[0].totalnodes/gen_stats[0].size );
      }
 
      /* rewrite the .bst file, and append to the .his file. */
@@ -676,7 +685,7 @@ int generation_information ( int gen, multipop *mpop, int stt_interval,
  * fitness values are invalid.
  */
 
-void evaluate_pop ( population *pop )
+void evaluate_pop ( population *pop, int pos )
 {
      int k;
 
@@ -689,8 +698,9 @@ void evaluate_pop ( population *pop )
      for ( k = 0; k < pop->size; ++k ) {
 
        /* clear the intron_data */
-       pop_intron_data[k].introns = 0;
-       pop_intron_data[k].nodes = individual_size( (pop->ind)+k );
+       // oprintf ( OUT_SYS, 20, "\nndoes %d introns %d\n", mpop_intron_data[pos][k].nodes, mpop_intron_data[pos][k].introns);
+       mpop_intron_data[pos][k].introns = 0;
+       mpop_intron_data[pos][k].nodes = individual_size( (pop->ind)+k );
 
        if ( pop->ind[k].evald != EVAL_CACHE_VALID )
        {       acgp_reset_expressed_czj(((pop->ind)+k)->tr->data); 
@@ -699,8 +709,8 @@ void evaluate_pop ( population *pop )
 
        /* ignoring the flag look for introns in the pop */
        // have a function here to count the introns
-       count_introns( ((pop->ind)+k)->tr->data, &pop_intron_data[k] );
-       //oprintf ( OUT_SYS, 10, "\nIntrons for individual %d are %d with nodes %d.\n", (k+1), pop_intron_data[k].introns, pop_intron_data[k].nodes );
+       count_introns( ((pop->ind)+k)->tr->data, &mpop_intron_data[pos][k] );
+       // oprintf ( OUT_SYS, 10, "\nIntrons for individual %d are %d with nodes %d.\n", (k+1), mpop_intron_data[pos][k].introns, mpop_intron_data[pos][k].nodes );
      }
 }
 
@@ -789,12 +799,12 @@ void calculate_pop_stats ( popstats *s, population *pop, int gen,
                ++b;
      }
 
-     /* calculate the total introns from pop_intron_data and update the popstats */
+     /* calculate the total introns from mpop_intron_data and update the popstats */
      int iter;
      s->popintrons = 0;
      s->intronpercent = 0.0f;
      for (iter = 0; iter < pop->size; iter++) {
-      s->popintrons += pop_intron_data[iter].introns;
+      s->popintrons += mpop_intron_data[subpop][iter].introns;
      }
      s->intronpercent = (double) s->popintrons / s->totalnodes;
      // oprintf (OUT_SYS, 10, "%lld %f", s->popintrons, s->intronpercent);
@@ -862,6 +872,8 @@ int accumulate_pop_stats ( popstats *total, popstats *n )
           total->totaldepth += n->totaldepth;
           total->totalhits += n->totalhits;
           total->totalfit += n->totalfit;
+          total->popintrons += n->popintrons;
+          total->intronpercent += n->intronpercent;
 
 	  /* find the maximums. */
           if ( n->maxnodes > total->maxnodes ) total->maxnodes = n->maxnodes;

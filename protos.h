@@ -97,7 +97,7 @@ void run_gp ( multipop *mpop, int startgen,
              event *t_eval, event *t_breed, int startfromcheckpoint );
 int generation_information ( int gen, multipop *mpop, int stt_interval,
                             int bestn );
-void evaluate_pop ( population *pop );
+void evaluate_pop ( population *pop, int pos );
 int accumulate_pop_stats ( popstats *total, popstats *n );
 void calculate_pop_stats ( popstats *s, population *pop, int gen, int subpop );
 void saved_individual_gc ( void );
