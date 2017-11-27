@@ -365,6 +365,11 @@ void operator_crossover ( population *oldpop, population *newpop,
   static int numCalls_czj=0;                           /* czj for debugging */
   numCalls_czj++; /* czj debug */
 #endif
+
+#ifdef DEBUG_CROSSOVER_NEW 
+  static int numChosenIntrons_akg=0;                           /* akg for debugging */
+  //numChosenIntrons_akg++; /* czj debug */
+#endif
    
   /* get the crossover-specific data structure. */
   cd = (crossover_data *)data;
@@ -424,15 +429,42 @@ printf("Parent1 has %d nodes, parent2 has %d nodes\n",ps1,ps2); /* czj debug */
   { if (forceany1)                                            /* choose dest */
     { l1 = random_int(ps1);
       st[1] = get_subtree(oldpop->ind[p1].tr[t1].data, l1);
+      while( st[1]->expressed_czj <= 0 ) {
+        numChosenIntrons_akg++;
+        fprintf(stderr, "\nChosen parent %d which was intron. (expressed : %d). Choosing another parent.\n", l1 , st[1]->expressed_czj);
+        l1 = random_int(ps1);
+        st[1] = get_subtree(oldpop->ind[p1].tr[t1].data, l1);
+        fprintf(stderr, "\nChoosing another parent %d with (expressed : %d).\n", l1 , st[1]->expressed_czj);
+      }
     }
     else if (total*random_double() < cd->internal)   /* choose internal dest */
          { l1=random_int(tree_nodes_internal(oldpop->ind[p1].tr[t1].data)); 
            st[1] = get_subtree_internal(oldpop->ind[p1].tr[t1].data, l1);
+           while( st[1]->expressed_czj <= 0 ) {
+            numChosenIntrons_akg++;
+            fprintf(stderr, "\nChosen parent %d which was intron. (expressed : %d). Choosing another parent.", l1 , st[1]->expressed_czj);
+            l1=random_int(tree_nodes_internal(oldpop->ind[p1].tr[t1].data)); 
+            st[1] = get_subtree_internal(oldpop->ind[p1].tr[t1].data, l1);
+            fprintf(stderr, "\nChoosing another parent %d with (expressed : %d).\n", l1 , st[1]->expressed_czj);
+           }
          }
          else                                     /* choose an external dest */
          { l1=random_int(tree_nodes_external(oldpop->ind[p1].tr[t1].data)); 
            st[1] = get_subtree_external(oldpop->ind[p1].tr[t1].data,l1);
-         }   
+           while( st[1]->expressed_czj <= 0 ) {
+            numChosenIntrons_akg++;
+            fprintf(stderr, "\nChosen parent %d which was intron. (expressed : %d). Choosing another parent.", l1 , st[1]->expressed_czj);
+            l1=random_int(tree_nodes_external(oldpop->ind[p1].tr[t1].data)); 
+            st[1] = get_subtree_external(oldpop->ind[p1].tr[t1].data,l1);
+            fprintf(stderr, "\nChoosing another parent %d with (expressed : %d).\n", l1 , st[1]->expressed_czj);
+          }
+         }  
+
+        #ifdef DEBUG_CROSSOVER_NEW
+            //fprintf(stderr, "\n Num of times introns chosen : %d", numChosenIntrons_akg);
+            //fprintf(stderr, "\n=-=-=-=-= Selected node %d wih expresses_czj %d", l1, st[1]->expressed_czj);
+        #endif
+
    /* czj: note that Function_/Argumnet_czj are set by calls to get_subtree* */
     repBad_czj=0;                /* reset the limit counter for the new dest */
     if (markXNodes_czj(oldpop->ind[p2].tr[t2].data)==0)
