@@ -367,7 +367,7 @@ void operator_crossover ( population *oldpop, population *newpop,
 #endif
 
 #ifdef DEBUG_CROSSOVER_NEW 
-  static int numChosenIntrons_akg=0;                           /* akg for debugging */
+  //static int numChosenIntrons_akg=0;                           /* akg for debugging */
   //numChosenIntrons_akg++; /* czj debug */
 #endif
    
@@ -430,7 +430,7 @@ printf("Parent1 has %d nodes, parent2 has %d nodes\n",ps1,ps2); /* czj debug */
     { l1 = random_int(ps1);
       st[1] = get_subtree(oldpop->ind[p1].tr[t1].data, l1);
       while( st[1]->expressed_czj <= 0 ) {
-        numChosenIntrons_akg++;
+        //numChosenIntrons_akg++;
         //fprintf(stderr, "\nChosen parent %d which was intron. (expressed : %d). Choosing another parent.\n", l1 , st[1]->expressed_czj);
         l1 = random_int(ps1);
         st[1] = get_subtree(oldpop->ind[p1].tr[t1].data, l1);
@@ -441,7 +441,7 @@ printf("Parent1 has %d nodes, parent2 has %d nodes\n",ps1,ps2); /* czj debug */
          { l1=random_int(tree_nodes_internal(oldpop->ind[p1].tr[t1].data)); 
            st[1] = get_subtree_internal(oldpop->ind[p1].tr[t1].data, l1);
            while( st[1]->expressed_czj <= 0 ) {
-            numChosenIntrons_akg++;
+            //numChosenIntrons_akg++;
             //fprintf(stderr, "\nChosen parent %d which was intron. (expressed : %d). Choosing another parent.", l1 , st[1]->expressed_czj);
             l1=random_int(tree_nodes_internal(oldpop->ind[p1].tr[t1].data)); 
             st[1] = get_subtree_internal(oldpop->ind[p1].tr[t1].data, l1);
@@ -452,7 +452,7 @@ printf("Parent1 has %d nodes, parent2 has %d nodes\n",ps1,ps2); /* czj debug */
          { l1=random_int(tree_nodes_external(oldpop->ind[p1].tr[t1].data)); 
            st[1] = get_subtree_external(oldpop->ind[p1].tr[t1].data,l1);
            while( st[1]->expressed_czj <= 0 ) {
-            numChosenIntrons_akg++;
+            //numChosenIntrons_akg++;
             //fprintf(stderr, "\nChosen parent %d which was intron. (expressed : %d). Choosing another parent.", l1 , st[1]->expressed_czj);
             l1=random_int(tree_nodes_external(oldpop->ind[p1].tr[t1].data)); 
             st[1] = get_subtree_external(oldpop->ind[p1].tr[t1].data,l1);
