@@ -556,7 +556,7 @@ int generation_information ( int gen, multipop *mpop, int stt_interval,
                oprintf ( OUT_STT, 50, "\n" );
           }
           if ( test_detail_level(50) )
-            oprintf ( OUT_USER, 50, "%.3lf %.3lf %.3lf %.3lf\n", (double)gen_stats[0].popintrons/mpop->size, gen_stats[0].intronpercent/mpop->size, gen_stats[0].totalfit/gen_stats[0].size, (double)gen_stats[0].totalnodes/gen_stats[0].size );
+            oprintf ( OUT_USER, 50, "%.3lf %.3lf %.3lf %.3lf\n", (double)gen_stats[0].popintrons/ gen_stats[0].size / mpop->size, (double)gen_stats[0].popintrons / gen_stats[0].totalnodes / gen_stats[0].size, gen_stats[0].totalfit/gen_stats[0].size, (double)gen_stats[0].totalnodes/gen_stats[0].size );
      }
 
      /* rewrite the .bst file, and append to the .his file. */
@@ -872,6 +872,8 @@ int accumulate_pop_stats ( popstats *total, popstats *n )
           total->totaldepth += n->totaldepth;
           total->totalhits += n->totalhits;
           total->totalfit += n->totalfit;
+          
+          /* intron specific */
           total->popintrons += n->popintrons;
           total->intronpercent += n->intronpercent;
 
