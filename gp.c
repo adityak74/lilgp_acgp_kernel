@@ -211,6 +211,7 @@ void run_gp ( multipop *mpop, int startgen,
 		  criterion was met, 0 otherwise. */
                term = generation_information ( gen, mpop, stt_interval,
 					      run_stats[0].bestn );
+               term = 0;
 /* czj comment: above will update weights and set Acgp_adj_regrow for this 
    generation as needed, plus reset the node expressed info */
                if ( term )
@@ -556,7 +557,7 @@ int generation_information ( int gen, multipop *mpop, int stt_interval,
                oprintf ( OUT_STT, 50, "\n" );
           }
           if ( test_detail_level(50) )
-            oprintf ( OUT_USER, 50, "%.3lf %.3lf %.3lf %.3lf\n", (double)gen_stats[0].popintrons/ gen_stats[0].size / mpop->size, (double)gen_stats[0].popintrons / gen_stats[0].totalnodes / gen_stats[0].size, gen_stats[0].totalfit/gen_stats[0].size, (double)gen_stats[0].totalnodes/gen_stats[0].size );
+            oprintf ( OUT_USER, 50, "%f %f %f %f\n", (double)gen_stats[0].popintrons / gen_stats[0].size, (double)gen_stats[0].popintrons / gen_stats[0].totalnodes, gen_stats[0].totalfit/gen_stats[0].size, (double)gen_stats[0].totalnodes/gen_stats[0].size );
      }
 
      /* rewrite the .bst file, and append to the .his file. */
