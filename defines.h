@@ -133,7 +133,8 @@
 /* #define DEBUG                   1 */
 /* #define DEBUG_EVAL              1 */ 
 //#define DEBUG_MUTATE            1
-//#define DEBUG_CROSSOVER 1 
+//#define DEBUG_CROSSOVER 0
+//#define DEBUG_CROSSOVER_NEW 0 
 //#define DEBUG_REGROW 1
 // #define DEBUG_LCL1 1
 //#define DEBUG_LVL1 1
