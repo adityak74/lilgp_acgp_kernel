@@ -557,7 +557,7 @@ int generation_information ( int gen, multipop *mpop, int stt_interval,
                oprintf ( OUT_STT, 50, "\n" );
           }
           if ( test_detail_level(50) )
-            oprintf ( OUT_USER, 50, "%f %f %f %f\n", (double)gen_stats[0].popintrons / gen_stats[0].size, (double)gen_stats[0].popintrons / gen_stats[0].totalnodes, gen_stats[0].totalfit/gen_stats[0].size, (double)gen_stats[0].totalnodes/gen_stats[0].size );
+            oprintf ( OUT_USER, 50, "%f %f %f %f\n", (double)gen_stats[0].popintrons / gen_stats[0].size, (double)gen_stats[0].popintrons / gen_stats[0].totalnodes, gen_stats[0].totalfit/gen_stats[0].size, gen_stats[0].bestnodes ,(double)gen_stats[0].totalnodes/gen_stats[0].size );
      }
 
      /* rewrite the .bst file, and append to the .his file. */
