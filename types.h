@@ -112,6 +112,10 @@ typedef struct
      int hits;
      int evald;
      int flags;
+
+     //CS6340
+     long long int introns;
+
 } individual;
 
 /* struct for doing a binary search of successive real-valued intervals. */
@@ -225,6 +229,9 @@ typedef struct _popstats
 
      /* added introns data to pop stats for writing to stt*/
      long long int popintrons;
+     long long int totalbestnodes;
+     long long int popbestintrons;
+     double totalbestfit;
      double intronpercent;
 } popstats;
 

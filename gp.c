@@ -557,7 +557,7 @@ int generation_information ( int gen, multipop *mpop, int stt_interval,
                oprintf ( OUT_STT, 50, "\n" );
           }
           if ( test_detail_level(50) )
-            oprintf ( OUT_USER, 50, "%f %f %f %d %f\n", (double)gen_stats[0].popintrons / gen_stats[0].size, (double)gen_stats[0].popintrons / gen_stats[0].totalnodes, gen_stats[0].totalfit/gen_stats[0].size, gen_stats[0].bestnodes ,(double)gen_stats[0].totalnodes/gen_stats[0].size );
+            oprintf ( OUT_USER, 50, "%f %f %f %f\n", (double)gen_stats[0].popbestintrons / mpop->size, (double)gen_stats[0].totalbestfit / mpop->size, gen_stats[0].totalfit/gen_stats[0].size, (double)gen_stats[0].totalbestnodes / mpop->size );
      }
 
      /* rewrite the .bst file, and append to the .his file. */
@@ -710,7 +710,7 @@ void evaluate_pop ( population *pop, int pos )
 
        /* ignoring the flag look for introns in the pop */
        // have a function here to count the introns
-       count_introns( ((pop->ind)+k)->tr->data, &mpop_intron_data[pos][k] );
+       count_introns( ((pop->ind)+k)->tr->data, &mpop_intron_data[pos][k], pop->ind+k );
        // oprintf ( OUT_SYS, 10, "\nIntrons for individual %d are %d with nodes %d.\n", (k+1), mpop_intron_data[pos][k].introns, mpop_intron_data[pos][k].nodes );
      }
 }
@@ -739,14 +739,15 @@ void calculate_pop_stats ( popstats *s, population *pop, int gen,
      /** this is all pretty obvious -- set all the max and min values to the
        first individual's values, then go through the population looking for
        things that are bigger/smaller/better/worse/etc. **/
-     
-     s->maxnodes = s->minnodes = s->totalnodes = s->bestnodes = s->worstnodes =
+    // CS6340
+     s->popbestintrons = 0;
+     s->maxnodes = s->minnodes = s->totalnodes = s->bestnodes = s->worstnodes = s->totalbestnodes =
           individual_size ( pop->ind+0 );
      s->maxdepth = s->mindepth = s->totaldepth = s->bestdepth = s->worstdepth =
           individual_depth ( pop->ind+0 );
      s->maxhits = s->minhits = s->totalhits = s->besthits = s->worsthits =
           pop->ind[0].hits;
-     s->bestfit = s->worstfit = s->totalfit = pop->ind[0].a_fitness;
+     s->bestfit = s->worstfit = s->totalfit = s->totalbestfit = pop->ind[0].a_fitness;
      temp[0] = pop->ind;
      b = 1;
      s->bestgen = s->worstgen = gen;
@@ -773,7 +774,11 @@ void calculate_pop_stats ( popstats *s, population *pop, int gen,
           if ( pop->ind[i].a_fitness > s->bestfit )
           {
                s->bestfit = pop->ind[i].a_fitness;
+               s->totalbestfit = pop->ind[i].a_fitness;
                s->bestnodes = j;
+               s->popbestintrons = pop->ind[i].introns;
+               // CS6340
+               s->totalbestnodes = j;
                s->bestdepth = k;
                s->besthits = l;
           }
@@ -853,7 +858,7 @@ int accumulate_pop_stats ( popstats *total, popstats *n )
      int ret = 0;
      int i, j, k;
      saved_ind **temp;
-
+     
      if ( total->size == -1 )
      {
 	  /* if the "total" record is empty, then just copy the second record
@@ -864,6 +869,7 @@ int accumulate_pop_stats ( popstats *total, popstats *n )
           memcpy ( total->best, n->best, total->bestn *
                   sizeof ( saved_ind * ) );
           ret = 1;
+          
      }
      else
      {
@@ -872,8 +878,14 @@ int accumulate_pop_stats ( popstats *total, popstats *n )
           total->totalnodes += n->totalnodes;
           total->totaldepth += n->totaldepth;
           total->totalhits += n->totalhits;
-          total->totalfit += n->totalfit;
-          
+          total->totalfit += n->totalfit;          
+
+          // CS6340
+          total->totalbestnodes += n->bestnodes;
+          total->popbestintrons += n->popbestintrons;
+          total->totalbestfit += n->bestfit;
+          //oprintf( OUT_SYS, 20, "--Total Best Fit : %f, Fit : %f\n", total->totalbestfit, n->bestfit );
+          // CS6340
           /* intron specific */
           total->popintrons += n->popintrons;
           total->intronpercent += n->intronpercent;
@@ -891,6 +903,7 @@ int accumulate_pop_stats ( popstats *total, popstats *n )
 	  /* find the best individual's numbers. */
           if ( n->bestfit > total->bestfit )
           {
+               //oprintf( OUT_SYS, 20, "---Best Individual Before : %d\n", total->bestnodes);
                total->bestfit = n->bestfit;
                total->bestnodes = n->bestnodes;
                total->bestdepth = n->bestdepth;
@@ -898,6 +911,7 @@ int accumulate_pop_stats ( popstats *total, popstats *n )
                total->bestgen = n->bestgen;
                total->bestpop = n->bestpop;
                ret = 1;
+               //oprintf( OUT_SYS, 20, "---Best Individual : %d\n", n->bestnodes);
           }
 
 	  /* find the worst individual's numbers. */

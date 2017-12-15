@@ -125,7 +125,8 @@ void acgp_reset_expressed_czj( lnode *l);
    NOTE: when resetting a node can be expressed even if parent wasn't
    due to crossover */
 
-void count_introns(lnode *data, intron_data *idata);
+// CS6340
+void count_introns(lnode *data, intron_data *idata, individual *ind);
 /*
 counts the introns and updates the pop_intron_data
 */

@@ -1354,10 +1354,11 @@ static void acgp_reset_expressed_recurse(lnode **l)
      }
 }
 
-void count_introns(lnode *data, intron_data *idata)
+void count_introns(lnode *data, intron_data *idata, individual *ind)
 {
      lnode *c = data;
      count_introns_recurse (&c, &idata);
+     ind->introns = idata->introns;
 }
 
 static void count_introns_recurse(lnode **l, intron_data **idata)
